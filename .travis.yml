@@ -1,0 +1,34 @@
+# https://docs.travis-ci.com/user/languages/minimal-and-generic/
+language: minimal
+dist: bionic
+
+matrix:
+  include:
+    - env: DISTRO=node
+    - env: DISTRO=alpine
+    - env: DISTRO=archlinux
+    - env: DISTRO=centos
+    - env: DISTRO=debian
+    - env: DISTRO=fedora
+    - env: DISTRO=opensuse
+    - env: DISTRO=ubuntu
+
+# no install step to perform
+install: true
+
+# When a script command fails, travis run the next one so we must use
+# `travis_terminate 1`
+script:
+  - cd ci
+  - >
+    echo 'travis_fold:start:docker'
+    && make docker_${DISTRO}
+    && echo 'travis_fold:end:docker'
+    || travis_terminate 1
+
+  - >
+    echo 'travis_fold:start:test'
+    && make test_${DISTRO}
+    && echo 'travis_fold:end:test'
+    || travis_terminate 1
+
