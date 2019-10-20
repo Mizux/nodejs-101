@@ -96,7 +96,7 @@ First we will add a [script](https://yarnpkg.com/en/docs/package-json#toc-script
 }
 ```
 
-To run this nodejs server use:
+To run this nodejs server simply use:
 ```sh
 yarn start
 ```
