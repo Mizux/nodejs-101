@@ -16,7 +16,7 @@ WORKDIR /home/node/app
 # where available (npm@5+)
 COPY package*.json ./
 
-RUN npm install
+RUN yarn install
 
 # Bundle app source
 COPY . .
