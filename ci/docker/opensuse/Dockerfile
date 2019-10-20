@@ -27,4 +27,4 @@ RUN npm install
 COPY . .
 
 EXPOSE 8080
-CMD [ "yarn", "node", "server.js" ]
+CMD [ "yarn", "start" ]
