@@ -149,11 +149,3 @@ clean: $(targets)
 	docker container prune -f
 	docker image prune -f
 	rmdir cache
-
-# DISTCLEAN
-targets = $(addprefix distclean_, $(DISTROS))
-.PHONY: distclean $(targets)
-$(targets): distclean_%: clean_%
-	-docker image rm -f ${IMAGE}_$*:install 2>/dev/null
-	-rm -f cache/$*/docker_install.tar
-distclean: $(targets)
