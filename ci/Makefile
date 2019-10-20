@@ -123,8 +123,8 @@ targets = $(addprefix test_, $(DISTROS))
 .PHONY: test $(targets)
 test: $(targets)
 $(targets): test_%: serve_%
-	@until $$(curl --output /dev/null --silent --head --fail localhost:8080); do echo '.'; sleep 1; done
-	@curl -i localhost:8080
+	@until $$(curl --output /dev/null --silent --head --fail localhost:${HOST_PORT}); do echo '.'; sleep 1; done
+	@curl -i localhost:${HOST_PORT}
 	@docker stop $*_server 1>/dev/null
 
 # BUILD
