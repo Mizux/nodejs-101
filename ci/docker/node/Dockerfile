@@ -1,4 +1,4 @@
-FROM node:alpine
+FROM node:alpine AS builder
 LABEL maintainer="mizux.dev@gmail.com"
 
 # Install/Configure nodejs, npm, yarn
