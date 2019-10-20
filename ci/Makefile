@@ -73,6 +73,8 @@ else
 DOCKER_BUILD_CMD := docker build
 endif
 
+DOCKER_RUN_CMD := docker run -p ${HOST_PORT}:8080 --rm --init
+
 DOCKER_SERVE_CMD := docker run -p ${HOST_PORT}:8080 --rm --init -it
 DOCKER_TEST_CMD := docker run -p ${HOST_PORT}:8080 --rm --init -d
 
@@ -107,24 +109,23 @@ cache/%/docker_devel.tar: docker/%/Dockerfile ../package.json
 targets = $(addprefix bash_, $(DISTROS))
 .PHONY: $(targets)
 $(targets): bash_%: cache/%/docker_devel.tar
-	${DOCKER_SERVE_CMD} ${IMAGE}_$*:devel /bin/sh
+	${DOCKER_RUN_CMD} -it ${IMAGE}_$*:devel /bin/sh
 
 # DOCKER SERVE
 targets = $(addprefix serve_, $(DISTROS))
 .PHONY: $(targets)
 $(targets): serve_%: cache/%/docker_devel.tar
-	@echo "please run: curl -i localhost:8080"
-	${DOCKER_SERVE_CMD} ${IMAGE}_$*:devel
+	-docker stop $*_server 2>/dev/null | true
+	${DOCKER_RUN_CMD} -d --name $*_server ${IMAGE}_$*:devel
 
 # TEST
 targets = $(addprefix test_, $(DISTROS))
 .PHONY: test $(targets)
 test: $(targets)
-$(targets): test_%: cache/%/docker_devel.tar
-	${DOCKER_TEST_CMD} --name $*_server ${IMAGE}_$*:devel
+$(targets): test_%: serve_%
 	@until $$(curl --output /dev/null --silent --head --fail localhost:8080); do echo '.'; sleep 1; done
 	@curl -i localhost:8080
-	docker stop $*_server
+	@docker stop $*_server 1>/dev/null
 
 # BUILD
 targets = $(addprefix build_, $(DISTROS))
