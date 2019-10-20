@@ -1,4 +1,4 @@
-| Linux/macOS/Windows                             |
+| Linux                                           |
 |-------------------------------------------------|
 | [![Build Status][travis_status]][travis_builds] |
 
@@ -12,8 +12,8 @@ My repository about FOSS web development using the Travis-CI infrastructure for
 ### Project directory layout
 Thus the project layout is as follow:
 
-* [package.json](package.json) Dependencies list consumed by [npm](https://www.npmjs.com/).
-* [server.js](server.js) entry point of the nodejs server.
+* [package.json](package.json) Dependencies list consumed by [npm](https://www.npmjs.com/) and [yarn](https://yarnpkg.com/lang/en/).
+* [index.js](index.js) entry point of the nodejs server.
 * [ci](ci) Top-level directory for Makefile/docker Continous Integration testing.
 
 ## Nodejs Project Build
@@ -48,6 +48,9 @@ Apache 2. See the LICENSE file for details.
 # Environment Setup
 First things first, let's setting up a native development environment on various GNU/Linux distro or using a docker container.  
 
-You'll need nodejs, npm...
+You'll need:
+- **nodejs**,
+- **npm** and
+- **yarn**.
 
 note: Look at `ci/docker/<distro>/Dockerfile` for install script.
