@@ -6,39 +6,16 @@
 [travis_builds]: https://travis-ci.org/Mizux/nodejs-101
 
 # Introduction
-My repository about FOSS web development using the Travis-CI infrastructure for
- testing.
+A simple app without using any framework.
 
-### Project directory layout
+# Project directory layout
 Thus the project layout is as follow:
 
 * [package.json](package.json) Dependencies list consumed by [npm](https://www.npmjs.com/) and [yarn](https://yarnpkg.com/lang/en/).
 * [index.js](index.js) entry point of the nodejs server.
 * [ci](ci) Top-level directory for Makefile/docker Continous Integration testing.
 
-## CI: Makefile/Docker testing
-To test the build, there is a Makefile in [ci](ci) folder using
-docker containers to test on various distro.
-
-To get the help simply type:
-```sh
-cd ci
-make
-```
-note: you can also use
-```sh
-make --directory=ci
-```
-
-For example to test the server inside an ubuntu container:
-```sh
-make --directory=ci test_ubuntu
-```
-
-# License
-Apache 2. See the LICENSE file for details.
-
-# Project
+# Project Step
 
 ## Step 1: Environment Setup
 First, setup a native development environment on various GNU/Linux distro
@@ -49,6 +26,16 @@ You'll need:
 - **npm** and
 - **yarn**.
 
+note: few distro don't provide a `yarn` package, you might install it using:
+```sh
+export NPM_CONFIG_PREFIX=${HOME}/.npm-global
+export PATH=$PATH:${NPM_CONFIG_PREFIX}/bin
+
+npm install --global yarn
+```
+
+note: You can also use the official docker image
+[node:alpine](https://hub.docker.com/_/node/).  
 note: Look at [ci/docker/<you_distro>/Dockerfile](ci/docker) for this step.
 
 ## Step 2: Create a new project
@@ -75,19 +62,43 @@ Done in 78.63s.
 ```
 
 ## Step 3: Add Dependencies
-Let's add [express](http://expressjs.com/) as dependency using:
+Let's add [http](https://nodejs.org/api/http.html) as dependency using:
 ```sh
-yarn add express
+yarn add http
 ```
 
-## Step 4: Install Dependencies
-Let's install them using:
+Then install them using:
 ```sh
 yarn install
 ```
 
-## Step 5: Launch the nodejs server
-First we will add a [script](https://yarnpkg.com/en/docs/package-json#toc-scripts) to package.json by adding:
+## Step 4: Write our server entry point
+Create the file `index.js` and add this content:
+```js
+'use strict';
+
+const http = require('http');
+const port = 8080;
+
+const requestHandler = (request, response) => {
+  console.log(request.url)
+  response.end('Hello Node.js Server!')
+}
+
+const server = http.createServer(requestHandler)
+
+server.listen(PORT, (err) => {
+  if (err) {
+    return console.log('something bad happened', err)
+  }
+
+  console.log(`server is listening on ${PORT}`)
+})
+```
+
+## Step 5: Launch the webapp
+First we will add a [script](https://yarnpkg.com/en/docs/package-json#toc-scripts)
+to package.json by adding:
 ```json
 {
   "scripts": {
@@ -100,3 +111,30 @@ To run this nodejs server simply use:
 ```sh
 yarn start
 ```
+
+To verify the server is responding, you can use:
+```sh
+curl -i localhost:8080
+```
+
+# CI: Makefile/Docker testing
+To test the build, there is a Makefile in [ci](ci) folder using
+docker containers to test on various distro.
+
+To get the help simply type:
+```sh
+cd ci
+make
+```
+note: you can also use
+```sh
+make --directory=ci
+```
+
+For example to test the server inside an ubuntu container:
+```sh
+make --directory=ci test_ubuntu
+```
+
+# License
+Apache 2. See the LICENSE file for details.

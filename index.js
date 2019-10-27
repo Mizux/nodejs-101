@@ -1,16 +1,21 @@
 'use strict';
-
-const express = require('express');
+const http = require('http');
 
 // Constants
 const PORT = 8080;
-const HOST = '0.0.0.0';
 
 // App
-const app = express();
-app.get('/', (req, res) => {
-  res.send('Hello world\n');
-});
+const requestHandler = (request, response) => {
+  console.log(request.url)
+  response.end('Hello Node.js Server!')
+}
 
-app.listen(PORT, HOST);
-console.log(`Running on http://${HOST}:${PORT}`);
+const server = http.createServer(requestHandler)
+
+server.listen(PORT, (err) => {
+  if (err) {
+    return console.log('something bad happened', err)
+  }
+
+  console.log(`server is listening on ${PORT}`)
+})
