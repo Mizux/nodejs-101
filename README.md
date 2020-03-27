@@ -2,8 +2,8 @@
 |-------------------------------------------------|
 | [![Build Status][travis_status]][travis_builds] |
 
-[travis_status]: https://travis-ci.org/Mizux/nodejs-101.svg?branch=master
-[travis_builds]: https://travis-ci.org/Mizux/nodejs-101
+[travis_status]: https://travis-ci.com/Mizux/nodejs-101.svg?branch=master
+[travis_builds]: https://travis-ci.com/Mizux/nodejs-101
 
 # Introduction
 A simple app without using any framework.
