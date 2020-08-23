@@ -1,4 +1,4 @@
-FROM archlinux/base
+FROM archlinux:latest
 LABEL maintainer="mizux.dev@gmail.com"
 
 # Install/Configure nodejs, npm, yarn
