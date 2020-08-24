@@ -21,14 +21,12 @@ install: true
 script:
   - cd ci
   - >
-    echo 'travis_fold:start:docker'
-    && make docker_${DISTRO}
-    && echo 'travis_fold:end:docker'
-    || travis_terminate 1
+    echo 'travis_fold:start:docker';
+    make docker_${DISTRO} || travis_terminate 1 ;
+    echo 'travis_fold:end:docker'
 
   - >
-    echo 'travis_fold:start:test'
-    && make test_${DISTRO}
-    && echo 'travis_fold:end:test'
-    || travis_terminate 1
+    echo 'travis_fold:start:test';
+    make test_${DISTRO} || travis_terminate 1 ;
+    echo 'travis_fold:end:test'
 
