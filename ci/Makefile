@@ -18,19 +18,20 @@ help:
 	@echo -e "${BOLD}MAKE TARGETS${RESET}"
 	@echo -e "\t${BOLD}help${RESET}: display this help and exit."
 	@echo
-	@echo -e "\t${BOLD}docker${RESET}: build all docker devel images."
-	@echo -e "\t${BOLD}docker_<distro>${RESET}: build a docker devel image for the specified distro."
-	@echo -e "\t${BOLD}serve_<distro>${RESET}: run a container of the distro image specified."
-	@echo -e "\t${BOLD}bash_<distro>${RESET}: run a container of the distro image specified opening a shell for debug purpose."
+	@echo -e "\t${BOLD}<stage>${RESET}: build all <stage> docker images."
+	@echo -e "\t${BOLD}<distro>_<stage>${RESET}: build the <stage> docker image for a specific distro."
+	@echo -e "\t${BOLD}save_<stage>${RESET}: Save all <stage> docker images."
+	@echo -e "\t${BOLD}save_<distro>_<stage>${RESET}: Save the <stage> docker image for a specific distro."
+	@echo -e "\t${BOLD}sh_<distro>_<stage>${RESET}: run a container using the <stage> docker image (debug purpose)."
 	@echo
-	@echo -e "\t${BOLD}test${RESET}: ${BOLD}test${RESET} using all distro image containers."
-	@echo -e "\t${BOLD}test_<distro>${RESET}: ${BOLD}test${RESET} using the distro image container specified."
+	@echo -e "\t${BOLD}<stage>${RESET}:"
+	@echo -e "\t\t${BOLD}env${RESET}"
+	@echo -e "\t\t${BOLD}devel${RESET}"
+	@echo -e "\t\t${BOLD}build${RESET}"
 	@echo
-	@echo -e "\t${BOLD}build${RESET}: ${BOLD}build ${RESET} using all distro image containers."
-	@echo -e "\t${BOLD}build_<distro>${RESET}: ${BOLD}build${RESET} using the distro image container specified."
-	@echo
-	@echo -e "\t${BOLD}clean${RESET}: Remove log files and docker image for all distros."
-	@echo -e "\t${BOLD}clean_<distro>${RESET}: Remove log files and docker image for the distro specified."
+	@echo -e "\t${BOLD}<step>${RESET}:"
+	@echo -e "\t\t${BOLD}serve${RESET}"
+	@echo -e "\t\t${BOLD}test${RESET}"
 	@echo
 	@echo -e "\t${BOLD}<distro>${RESET}:"
 	@echo -e "\t\t${BOLD}node${RESET} (latest node:alpine container)"
@@ -41,7 +42,10 @@ help:
 	@echo -e "\t\t${BOLD}fedora${RESET} (latest)"
 	@echo -e "\t\t${BOLD}opensuse${RESET} (tumbleweed)"
 	@echo -e "\t\t${BOLD}ubuntu${RESET} (latest)"
-	@echo -e "\te.g. 'make test_ubuntu'"
+	@echo -e "\te.g. 'make ubuntu_test'"
+	@echo
+	@echo -e "\t${BOLD}clean${RESET}: Remove log files and docker image for all distros."
+	@echo -e "\t${BOLD}clean_<distro>${RESET}: Remove log files and docker image for the distro specified."
 	@echo
 	@echo -e "\t${BOLD}NOCACHE=1${RESET}: use 'docker build --no-cache' when building container (default use cache)."
 	@echo
@@ -56,6 +60,8 @@ help:
 .PHONY: all
 all: build
 
+# Delete all implicit rules to speed up makefile
+MAKEFLAGS += --no-builtin-rules
 # Delete all implicit rules to speed up makefile
 .SUFFIXES:
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -93,36 +99,56 @@ DISTROS = node alpine archlinux centos debian fedora opensuse ubuntu
 # $< first prerequist
 # $@ target name
 
-# DOCKER: Create devel image
-targets = $(addprefix docker_, $(DISTROS))
-.PHONY: docker $(targets)
-docker: $(targets)
-$(targets): docker_%: cache/%/docker_devel.tar
-cache/%/docker_devel.tar: docker/%/Dockerfile ../package.json
-	mkdir -p cache/$*
-	@docker image rm -f ${IMAGE}_$*:devel 2>/dev/null
-	@rm -f $@
-	${DOCKER_BUILD_CMD} -t ${IMAGE}_$*:devel -f $< ..
-	docker save ${IMAGE}_$*:devel -o $@
+STAGES = env devel build
+define make-stage-target
+#$$(info STAGE: $1)
+#$$(info Create targets: $1 $(addsuffix _$1, $(DISTROS)).)
+targets_$1 = $(addsuffix _$1, $(DISTROS))
+.PHONY: $1 $(targets_$1)
+$1: $$(targets_$1)
+$$(targets_$1): %_$1: docker/%/Dockerfile
+	#@docker image rm -f ${IMAGE}:$$*_$1 2>/dev/null
+	${DOCKER_BUILD_CMD} --target=$1 --tag ${IMAGE}:$$*_$1 -f $$< ..
 
-# DOCKER BASH: Inspect devel image (debug)
-targets = $(addprefix bash_, $(DISTROS))
-.PHONY: $(targets)
-$(targets): bash_%: cache/%/docker_devel.tar
-	${DOCKER_RUN_CMD} -it ${IMAGE}_$*:devel /bin/sh
+#$$(info Create targets: save_$1 $(addprefix save_, $(addsuffix _$1, $(DISTROS))) (debug).)
+save_targets_$1 = $(addprefix save_, $(addsuffix _$1, $(DISTROS)))
+.PHONY: save_$1 $(save_targets_$1)
+save_$1: $$(save_targets_$1)
+$$(save_targets_$1): save_%_$1: cache/%/docker_$1.tar
+cache/%/docker_$1.tar: %_$1
+	@rm -f $$@
+	mkdir -p cache/$$*
+	docker save ${IMAGE}:$$*_$1 -o $$@
 
-# DOCKER SERVE
-targets = $(addprefix serve_, $(DISTROS))
+#$$(info Create targets: $(addprefix sh_, $(addsuffix _$1, $(DISTROS))) (debug).)
+sh_targets_$1 = $(addprefix sh_, $(addsuffix _$1, $(DISTROS)))
+.PHONY: $(sh_targets_$1)
+$$(sh_targets_$1): sh_%_$1: %_$1
+	${DOCKER_RUN_CMD} -it --name ${IMAGE}_$$*_$1 ${IMAGE}:$$*_$1
+
+#$$(info Create targets: $(addprefix clean_, $(addsuffix _$1, $(DISTROS))).)
+clean_targets_$1 = $(addprefix clean_, $(addsuffix _$1, $(DISTROS)))
+.PHONY: clean_$1 $(clean_targets_$1)
+clean_$1: $$(clean_targets_$1)
+$$(clean_targets_$1): clean_%_$1:
+	docker image rm -f ${IMAGE}:$$*_$1 2>/dev/null
+	rm -f cache/$$*/docker_$1.tar
+endef
+
+$(foreach stage,$(STAGES),$(eval $(call make-stage-target,$(stage))))
+
+# SERVE
+targets = $(addsuffix _serve, $(DISTROS))
 .PHONY: $(targets)
-$(targets): serve_%: cache/%/docker_devel.tar
+$(targets): %_serve: %_build
 	-docker stop $*_server 2>/dev/null | true
-	${DOCKER_RUN_CMD} -d --name $*_server ${IMAGE}_$*:devel
+	${DOCKER_RUN_CMD} -d --name $*_server ${IMAGE}:$*_build
 
 # TEST
-targets = $(addprefix test_, $(DISTROS))
+targets = $(addsuffix _test, $(DISTROS))
 .PHONY: test $(targets)
 test: $(targets)
-$(targets): test_%: serve_%
+$(targets): %_test: %_serve
 	@timeout 10 sh -c \
  'until $$(curl --output /dev/null --silent --head --fail localhost:${HOST_PORT}); do \
    echo "."; \
@@ -130,16 +156,6 @@ $(targets): test_%: serve_%
  done'
 	@curl -i localhost:${HOST_PORT}
 	@docker stop $*_server 1>/dev/null
-
-# BUILD
-targets = $(addprefix build_, $(DISTROS))
-.PHONY: build $(targets)
-build: $(targets)
-$(targets): build_%: cache/%/build.log
-cache/%/build.log: cache/%/docker_devel.tar
-	${DOCKER_DEVEL_CMD} ${IMAGE}_$*:devel /bin/sh -c \
-		"yarn build"
-	@date > $@
 
 # CLEAN
 targets = $(addprefix clean_, $(DISTROS))

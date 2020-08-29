@@ -1,4 +1,4 @@
-FROM node:alpine AS builder
+FROM node:alpine AS env
 LABEL maintainer="mizux.dev@gmail.com"
 
 # Install/Configure nodejs, npm, yarn
@@ -8,6 +8,7 @@ ENV PATH=$PATH:/home/node/.npm-global/bin
 # Global Dependencies
 #RUN yarn global add @vue/cli
 
+FROM env AS devel
 # Create app directory
 WORKDIR /home/node/app
 
@@ -20,6 +21,9 @@ RUN yarn install
 
 # Bundle app source
 COPY . .
+
+FROM devel AS build
+RUN yarn build
 
 EXPOSE 8080
 CMD [ "yarn", "start" ]

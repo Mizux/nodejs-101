@@ -1,4 +1,4 @@
-FROM opensuse/tumbleweed
+FROM opensuse/tumbleweed AS env
 LABEL maintainer="mizux.dev@gmail.com"
 
 # Install/Configure nodejs, npm, yarn
@@ -13,6 +13,7 @@ RUN zypper up -y \
 RUN npm install --global yarn
 #RUN yarn global add @vue/cli
 
+FROM env AS devel
 # Create app directory
 WORKDIR /home/node/app
 
@@ -25,6 +26,9 @@ RUN yarn install
 
 # Bundle app sources
 COPY . .
+
+FROM devel AS build
+RUN yarn build
 
 EXPOSE 8080
 CMD [ "yarn", "start" ]
