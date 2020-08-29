@@ -1,7 +1,5 @@
-| Linux                                           |
-|-------------------------------------------------|
-| [![Build Status][github_status]][github_builds] |
-| [![Build Status][travis_status]][travis_builds] |
+[![Build Status][github_status]][github_builds]
+[![Build Status][travis_status]][travis_builds]
 
 [github_status]: https://github.com/Mizux/nodejs-101/workflows/CI/badge.svg
 [github_builds]: https://github.com/Mizux/nodejs-101/actions?query=workflow%3ACI
