@@ -1,7 +1,10 @@
 | Linux                                           |
 |-------------------------------------------------|
+| [![Build Status][github_status]][github_builds] |
 | [![Build Status][travis_status]][travis_builds] |
 
+[github_status]: https://github.com/Mizux/nodejs-101/workflows/CI/badge.svg
+[github_builds]: https://github.com/Mizux/nodejs-101/actions?query=workflow%3ACI
 [travis_status]: https://travis-ci.com/Mizux/nodejs-101.svg?branch=master
 [travis_builds]: https://travis-ci.com/Mizux/nodejs-101
 
