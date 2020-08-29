@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Node.js on Docker",
   "author": "Mizux Seiha <mizux.dev@gmail.com>",
+  "license": "MIT",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
