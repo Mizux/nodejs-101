@@ -1,4 +1,6 @@
-FROM centos:latest AS env
+# Create a virtual environment with all tools installed
+# ref: https://quay.io/repository/centos/centos
+FROM quay.io/centos/centos:stream AS env
 LABEL maintainer="mizux.dev@gmail.com"
 
 # Install/Configure nodejs, npm, yarn
