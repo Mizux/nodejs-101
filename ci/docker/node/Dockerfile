@@ -1,5 +1,4 @@
 FROM node:alpine AS env
-LABEL maintainer="mizux.dev@gmail.com"
 
 # Install/Configure nodejs, npm, yarn
 ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
